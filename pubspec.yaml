@@ -27,6 +27,10 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  rxdart: ^0.27.3
+  intl: ^0.17.0
+  datetime_picker_formfield: ^2.0.0
+  dropdown_button2: ^1.5.1
   flutter_barcode_scanner: ^2.0.0
   flutter:
     sdk: flutter

@@ -1,9 +1,6 @@
-import 'dart:html';
-import 'dart:js_util';
-
 import 'package:flutter/material.dart';
-import 'package:pelu_stock/src/widgets/dropdown_widget.dart';
-import 'package:pelu_stock/src/widgets/scann_widget.dart';
+import 'package:pelu_stock/src/screens/daily.dart';
+import 'package:pelu_stock/src/screens/master.dart';
 
 void main() {
   runApp(const MyApp());
@@ -21,51 +18,52 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const PayloadPage(title: 'Maestro Insumos'),
+      home: const BottomNavigationPage(),
     );
   }
 }
 
-class PayloadPage extends StatefulWidget {
-  const PayloadPage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+class BottomNavigationPage extends StatefulWidget {
+  const BottomNavigationPage({Key? key}) : super(key: key);
 
   @override
-  State<PayloadPage> createState() => _MyHomePageState();
+  State<BottomNavigationPage> createState() => _BottomNavigationPageState();
 }
 
-class _MyHomePageState extends State<PayloadPage> {
-
-  List<String> marcas = ['Marca 1' , 'Marca 2' , 'Marca 3' , 'Marca 4'];
-  List<String> lineas = ['Linea 1' , 'Linea 2' , 'Linea 3' , 'Linea 4'];
-  var radioValue = 1;
+class _BottomNavigationPageState extends State<BottomNavigationPage> {
+  final List<Widget> bottomBarItems = [
+    const MasterPage(title: 'Maestro Insumos'),
+    const DailyPage(),
+    Container()
+  ];
+  int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const ScannContainer(),
-            DropDownMenu(items: marcas),
-            Radio(
-              value: 1, 
-              groupValue: radioValue, 
-              onChanged: (value) {
-                setState(() {
-              
-                });
-            }
-            )
-          ],
-        ),
+      backgroundColor: Colors.black54,
+      body: bottomBarItems.elementAt(selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school_outlined),
+            label: 'Maestro',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.brightness_6),
+            label: 'Diario',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'Reporte',
+          ),
+        ],
+        currentIndex: selectedIndex,
+        selectedItemColor: Colors.red,
+        onTap: (index){setState(() {
+            selectedIndex = index;
+        });},
       ),
     );
   }
