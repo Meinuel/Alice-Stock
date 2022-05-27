@@ -39,7 +39,15 @@ class ScannContainer extends StatelessWidget {
         true, 
         ScanMode.BARCODE)
           .then((value)  {
-            navigatePayload != null ? navigatePayload(value) : controller.text = value;
+            if(navigatePayload != null){
+              if(value != '-1'){
+                navigatePayload(value);
+              }else{
+                return null;
+              }
+            }else{
+              controller.text = value;
+            }
           })
           .onError((error, stackTrace) {controller.text = 'error' ;});
   }

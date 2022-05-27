@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:pelu_stock/src/widgets/FatWidgets/dropdown_widget.dart';
 import 'package:pelu_stock/src/widgets/SimpleWidgets/texfield_widget.dart';
 
+import '../../models/tinturas.dart';
+
 class ProductType extends StatefulWidget {
+  final List<Tinturas> lineasTinturas; 
   final Function setLinea;
   final Function setSelectedType;
   final Object selectedItem;
   final TextEditingController productNameController;
   final TextEditingController tonoController;
-  const ProductType({Key? key , required this.setLinea  , required this.setSelectedType , required this.selectedItem , required this.productNameController , required this.tonoController}) : super(key: key);
+  const ProductType({Key? key , required this.setLinea  , required this.setSelectedType , required this.selectedItem , required this.productNameController , required this.tonoController , required this.lineasTinturas}) : super(key: key);
 
   @override
   State<ProductType> createState() => _ProductTypeState();
@@ -40,7 +43,7 @@ class _ProductTypeState extends State<ProductType> {
             const Text('Tintura',style: TextStyle(color: Colors.greenAccent,fontSize: 18,fontWeight: FontWeight.bold)),
           ],
         ),
-        DropDownMenu(items: lineas,hintText: 'Linea',setItem: widget.setLinea),
+        DropDownMenu(tinturas: widget.lineasTinturas,hintText: 'Linea',setItem: widget.setLinea),
         const SizedBox(height: 15),
         Container(
           margin: const EdgeInsets.only(left: 40),

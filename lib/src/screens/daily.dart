@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pelu_stock/src/api/hola.dart';
+import 'package:pelu_stock/src/api/request.dart';
 import 'package:pelu_stock/src/bloc/table_bloc.dart';
 import 'package:pelu_stock/src/models/item_product.dart';
 import 'package:pelu_stock/src/screens/payload.dart';
@@ -66,6 +67,9 @@ class _DailyPageState extends State<DailyPage> {
           ),
           ElevatedButton(
             onPressed: () {
+              setState((){
+                isLoading = true;
+              });
               handleForm();
               setState(() {
                 isLoading = false;
@@ -79,7 +83,7 @@ class _DailyPageState extends State<DailyPage> {
   
   static String _handleDate() {
     final DateTime dateTime = DateTime.now();
-    final String date = '${dateTime.day.toString()}/${dateTime.month.toString()}/${dateTime.day.toString()}';
+    final String date = '${dateTime.day.toString()}/${dateTime.month.toString()}/${dateTime.year.toString()}';
     return date;
   }
 
@@ -90,12 +94,14 @@ class _DailyPageState extends State<DailyPage> {
     });
   }
 
-  handleForm(){
+  handleForm() async {
     if(_dateController.text.isNotEmpty && _tableBloc.lastValue.isNotEmpty){
+      print(_dateController.text);
       setState(() {
         isLoading = true;
       });
-      updateApi().then((value) => _createDialog(value == 'Ok' ? 'Consumo registrado' : 'error api'));
+      consumosDiariosCreate(_tableBloc.lastValue, _dateController.text)
+        .then((value) => _createDialog(value == 'Ok' ? 'Consumo registrado' : 'error api'));
     }else{
       _createDialog('Falta informacion');
     }

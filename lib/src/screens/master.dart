@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pelu_stock/src/api/request.dart';
+import 'package:pelu_stock/src/models/tinturas.dart';
 
+import '../models/marcas.dart';
 import '../styles/button_style.dart';
 import '../widgets/FatWidgets/dialog_widget.dart';
 import '../widgets/FatWidgets/dropdown_widget.dart';
@@ -18,35 +21,23 @@ class MasterPage extends StatefulWidget {
 
 class _MasterPageState extends State<MasterPage> {
 
-  List<String> marcas = ['Marca 1' , 'Marca 2' , 'Marca 3' , 'Marca 4'];
+  Future productos = marcasGetAll();
   final TextEditingController _barcodeTextController = TextEditingController();
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _tonoController = TextEditingController();
-  String marca = '';
-  String linea = '';
+  Marcas marca = Marcas('' , '');
+  Tinturas linea = Tinturas('' , '');
   late Object productType = 'Producto';
   bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
 
-    return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            MyTitle(title: widget.title),
-            ScannContainer(controller: _barcodeTextController),
-            DropDownMenu(items: marcas , hintText: 'Marca' ,setItem: setMarca ),
-            ProductType(setLinea: setLinea,setSelectedType: setProductType , selectedItem: productType ,productNameController: _productNameController, tonoController: _tonoController),
-            const SizedBox(),
-            ElevatedButton(
-              onPressed: () => _handleForm(), 
-              child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) :  const Text('ok'),
-                style: buttonStyle(MediaQuery.of(context).size.width / 1.5)
-            )
-          ],
-        ),
-      );
+    return FutureBuilder(
+      future: productos,
+      builder: (context,snapshot) =>
+        snapshot.connectionState == ConnectionState.waiting ? _createLoader() : _createMaster(snapshot)
+    );
   }
   setProductType(Object? newType){
     setState(() {
@@ -54,13 +45,13 @@ class _MasterPageState extends State<MasterPage> {
     });
   }
 
-  setMarca(String newMarca){
+  setMarca(Marcas newMarca){
     setState(() {
       marca = newMarca;
     });
   }
 
-  setLinea(String newLinea){
+  setLinea(Tinturas newLinea){
     setState(() {
       linea = newLinea;
     });
@@ -68,11 +59,11 @@ class _MasterPageState extends State<MasterPage> {
   
   _handleForm() {
     bool hasError = false;
-    if( _barcodeTextController.text != '' && marca != '' ){
+    if( _barcodeTextController.text != '' && marca.nombre != '' ){
       if( productType == 'Producto' ){
         _productNameController.text != '' ? DoNothingAction() : hasError = true;
       }else{
-        linea != '' && _tonoController.text != '' ? DoNothingAction() : hasError = true;
+        linea.nombre != '' && _tonoController.text != '' ? DoNothingAction() : hasError = true;
       }
     } else {
       hasError = true;
@@ -81,27 +72,54 @@ class _MasterPageState extends State<MasterPage> {
       setState(() {
         isLoading = true;
       });
-      _updateApi().then((value) => _createDialog(value == 'Ok' ? 'Producto registrado' : 'error api'));
+      insumosSave(_barcodeTextController.text , marca.id , marca.id != '' ? false : true , linea.id , _tonoController.text , _productNameController.text , marca.id != '' ? marca.id : linea.id)
+        .then((value) {
+          setState((){
+            isLoading = false;
+          });
+          _createDialog(value == 'ok' ? 'Producto registrado' : 'error api');});
     }else{
       _createDialog('Error en form');
     }
   }
-  
 
   _createDialog( String message ) {
     return showDialog(context: context, builder: (context){
       return MyDialog(message: message);
+    }).then((value) {
+      if(message == 'Producto registrado'){
+        setState(() {
+          _barcodeTextController.clear();
+          _productNameController.clear();
+          _tonoController.clear();
+          marca = Marcas('', '');
+          linea = Tinturas('', '');
+        });
+      }
     });
   }
   
-  Future _updateApi() async {
-    String response = '';
-    await Future.delayed(const Duration(seconds: 5), () {
-      response = 'Ok';
-      setState(() {
-        isLoading = false;
-      });
-    },);
-    return response;
+  _createLoader() {
+    return const Center(child: CircularProgressIndicator());
+  }
+  
+  _createMaster(AsyncSnapshot snapshot) {
+    return Center(
+      child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        MyTitle(title: widget.title),
+        ScannContainer(controller: _barcodeTextController),
+        DropDownMenu(marcas: snapshot.data[0] , hintText: 'Marca' ,setItem: setMarca ),
+        ProductType(setLinea: setLinea,setSelectedType: setProductType , selectedItem: productType ,productNameController: _productNameController, tonoController: _tonoController , lineasTinturas: snapshot.data[1]),
+        const SizedBox(),
+        ElevatedButton(
+          onPressed: () => _handleForm(), 
+          child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) :  const Text('ok'),
+            style: buttonStyle(MediaQuery.of(context).size.width / 1.5)
+        )
+      ],
+    ),
+  );
   } 
 }

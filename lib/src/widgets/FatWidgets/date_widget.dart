@@ -19,19 +19,21 @@ class MyDate extends StatelessWidget {
           height: 50,
           width: 200,
           child: DateTimeField(
+            controller: dateController,
             style: const TextStyle(color: Colors.white , fontWeight: FontWeight.bold),
             initialValue: DateTime.now(),
             decoration: const InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.only(left: 50,top: 15)
             ),
-            format: DateFormat("yyyy-MM-dd"),
+            format: DateFormat("MM/dd/yyyy"),
             onShowPicker: (context, currentValue) {
               return showDatePicker(
-                  context: context,
-                  firstDate: DateTime(2022),
-                  initialDate: currentValue ?? DateTime.now(),
-                  lastDate: DateTime(2100));
+                locale: const Locale("es", "ES"),
+                context: context,
+                firstDate: DateTime(2022),
+                initialDate: currentValue ?? DateTime.now(),
+                lastDate: DateTime(2100));
             },
       ),
         ),

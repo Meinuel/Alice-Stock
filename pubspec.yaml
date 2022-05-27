@@ -27,6 +27,13 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  flutter_localizations: # Add this line
+    sdk: flutter         # Add this lin
+  xml: ^6.1.0
+  pdf: ^3.7.4
+  path_provider: ^2.0.9
+  share_plus: ^4.0.4
+  http: ^0.13.4
   rxdart: ^0.27.3
   intl: ^0.17.0
   datetime_picker_formfield: ^2.0.0

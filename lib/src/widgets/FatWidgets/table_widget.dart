@@ -21,11 +21,11 @@ class MyTable extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text('Rend'   ,style: _colTitleStyle()),
+          child: Text('Cant'   ,style: _colTitleStyle()),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text('Cant'   ,style: _colTitleStyle()),
+          child: Text('Rend'   ,style: _colTitleStyle()),
         )
     ]);
 

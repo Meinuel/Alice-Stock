@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pelu_stock/src/screens/daily.dart';
 import 'package:pelu_stock/src/screens/master.dart';
+import 'package:pelu_stock/src/screens/reporte.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(const MyApp());
 }
 
@@ -13,6 +19,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es' , 'ES'),
+      ],
       debugShowCheckedModeBanner: false,
       title: 'Alice Stock',
       theme: ThemeData(
@@ -32,9 +46,9 @@ class BottomNavigationPage extends StatefulWidget {
 
 class _BottomNavigationPageState extends State<BottomNavigationPage> {
   final List<Widget> bottomBarItems = [
-    const MasterPage(title: 'Maestro Insumos'),
     const DailyPage(),
-    Container()
+    const MasterPage(title: 'Maestro Insumos'),
+    const ReportPage()
   ];
   int selectedIndex = 0;
 
