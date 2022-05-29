@@ -72,7 +72,7 @@ class _MasterPageState extends State<MasterPage> {
       setState(() {
         isLoading = true;
       });
-      insumosSave(_barcodeTextController.text , marca.id , marca.id != '' ? false : true , linea.id , _tonoController.text , _productNameController.text , marca.id != '' ? marca.id : linea.id)
+      insumosSave(_barcodeTextController.text , marca.id , productType == 'Producto' ? false : true , linea.id , _tonoController.text , _productNameController.text , '')
         .then((value) {
           setState((){
             isLoading = false;

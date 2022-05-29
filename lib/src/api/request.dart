@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:pelu_stock/src/models/marcas.dart';
 import 'package:pelu_stock/src/models/tinturas.dart';
 import 'dart:convert' as convert;
@@ -94,11 +95,12 @@ insumosSave(barra , marcaId , esTintura , lineaId , tono , nombre , id) async {
                 <lineaId>$lineaId</lineaId>
                 <tono>$tono</tono>
                 <nombre>$nombre</nombre>
-                <id>$id</id>
+                <id></id>
             </ser:InsumosSave>
         </soapenv:Body>
     </soapenv:Envelope>
     ''';
+  print(bodyRequest);
 
   var rsp = await http.post(
     url,
@@ -191,12 +193,18 @@ Future<ItemProduct?> insumosGet(String barcode) async {
 }
 
 Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
+
+  List<String> dateParts = fecha.split('/');
+  String day = dateParts[0].length == 1 ? '0${dateParts[0]}' : dateParts[0];
+  String month = dateParts[1].length == 1 ? '0${dateParts[1]}' : dateParts[1];
+  String date = dateParts[2] + month + day; 
+
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
   String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
   String temp = '';
 
   for (var element in productos) {
-    temp = temp + '{fecha:$fecha,codigoBarras:${element.codigoBarras},cantidad:${element.cantidad},rendimiento:${element.rendimiento}},';
+    temp = temp + '{"fecha":$date","codigoBarras":"${element.codigoBarras}","cantidad":"${element.cantidad}","rendimiento":"${element.rendimiento}"},';
   }
   String json = temp.substring(0 , temp.length - 1 );
   print(json);
@@ -210,8 +218,8 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
         </soapenv:Body>
     </soapenv:Envelope>
     ''';
-
-  var rsp = await http.post(
+  try {
+    var rsp = await http.post(
     url,
     headers: {
       'Host':'salonalice.com.ar',
@@ -227,6 +235,9 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
   print(res);
   print(response);
   return res == '' ? 'Ok' : 'error';
+  } catch (e) {
+    return null;
+  }
 }
 
 parseRsp(raw){

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:intl/intl.dart';
 import 'package:pelu_stock/src/styles/button_style.dart';
 import 'package:pelu_stock/src/util/create_pdf.dart';
@@ -44,18 +43,18 @@ class _ReportPageState extends State<ReportPage> {
         ],
       )
     );
-  }
+  } 
 
   _pickDateRange() async {
-    final initialDateRange = DateTimeRange(start: DateTime.now(), end: DateTime.now().add(const Duration(hours: 24)));
+    //final initialDateRange = DateTimeRange(start: DateTime.now().subtract(const Duration(days: 30)), end: DateTime.now());
     final newDateRange = await showDateRangePicker(
       locale: const Locale("es", "ES"),
-      initialEntryMode: DatePickerEntryMode.calendarOnly,
-      useRootNavigator: false,
+      initialEntryMode: DatePickerEntryMode.calendar,
       context: context, 
       firstDate: DateTime(2022, 1, 1), 
-      lastDate: DateTime(2030, 1, 1),
-      initialDateRange: initialDateRange);
+      lastDate: DateTime.now(),
+      //initialDateRange: initialDateRange
+      );
       if ( newDateRange == null) return;
       setState(() => _dateTimeRange = newDateRange);
   }

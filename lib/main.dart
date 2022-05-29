@@ -61,12 +61,12 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
         backgroundColor: Colors.white,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.school_outlined),
-            label: 'Maestro',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.brightness_6),
             label: 'Diario',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school_outlined),
+            label: 'Maestro',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history),

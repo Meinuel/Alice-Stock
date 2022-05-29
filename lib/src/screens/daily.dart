@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:pelu_stock/src/api/hola.dart';
+import 'package:intl/intl.dart';
 import 'package:pelu_stock/src/api/request.dart';
 import 'package:pelu_stock/src/bloc/table_bloc.dart';
 import 'package:pelu_stock/src/models/item_product.dart';
@@ -31,7 +31,7 @@ class _DailyPageState extends State<DailyPage> {
   @override
   void initState() {
     _tableBloc.tableSink([]);
-    _dateController.text = date;
+    _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     super.initState();
   }
 
@@ -49,22 +49,16 @@ class _DailyPageState extends State<DailyPage> {
         children: [
           const SizedBox(height: 15),
           const MyTitle(title: 'Consumos del dia'),
-          const SizedBox(height: 30),
+          const SizedBox(height: 15),
           MyDate(dateController: _dateController),
-          const SizedBox(height: 45),
+          const SizedBox(height: 15),
           ScannContainer(controller: _barcodeTextController , navigatePayload: createRoute),
-          const SizedBox(height: 50),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 15),
-              child: SingleChildScrollView(
-                child: StreamBuilder<List<ItemProduct>>(
-                  stream: _tableBloc.tableStream,
-                  builder: (context, snapshot) => MyTable(tableBloc: _tableBloc , snapshot: snapshot)
-                ),
-              ),
-            ),
+          const SizedBox(height: 15),
+          StreamBuilder<List<ItemProduct>>(
+            stream: _tableBloc.tableStream,
+            builder: (context, snapshot) => MyTable(tableBloc: _tableBloc , snapshot: snapshot)
           ),
+          const SizedBox(height: 15),
           ElevatedButton(
             onPressed: () {
               setState((){
@@ -76,7 +70,7 @@ class _DailyPageState extends State<DailyPage> {
               });},
             style: buttonStyle(MediaQuery.of(context).size.width / 1.5),
             child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) : const Text('Terminar')),
-            const SizedBox(height: 20,)
+          const SizedBox(height: 15),
         ],
       );
   }
@@ -101,7 +95,8 @@ class _DailyPageState extends State<DailyPage> {
         isLoading = true;
       });
       consumosDiariosCreate(_tableBloc.lastValue, _dateController.text)
-        .then((value) => _createDialog(value == 'Ok' ? 'Consumo registrado' : 'error api'));
+        .then((value) => _createDialog(value == 'Ok' ? 'Consumo registrado' : 'Error'))
+        .onError((error, stackTrace) => _createDialog('Error inesperado'));
     }else{
       _createDialog('Falta informacion');
     }

@@ -19,7 +19,7 @@ class MyDate extends StatelessWidget {
           height: 50,
           width: 200,
           child: DateTimeField(
-            controller: dateController,
+            //controller: dateController,
             style: const TextStyle(color: Colors.white , fontWeight: FontWeight.bold),
             initialValue: DateTime.now(),
             decoration: const InputDecoration(
@@ -33,7 +33,14 @@ class MyDate extends StatelessWidget {
                 context: context,
                 firstDate: DateTime(2022),
                 initialDate: currentValue ?? DateTime.now(),
-                lastDate: DateTime(2100));
+                lastDate: DateTime.now())
+                  .then((value){
+                    if(value != null){
+                      dateController.text = DateFormat('dd/MM/yyyy').format(value);
+                      return value;
+                    }
+                    return null;
+                  });
             },
       ),
         ),

@@ -3,37 +3,64 @@ import 'package:pelu_stock/src/models/item_product.dart';
 
 import '../../bloc/table_bloc.dart';
 
-class MyTable extends StatelessWidget {
+class MyTable extends StatefulWidget {
   final TableBloc tableBloc ;
   final AsyncSnapshot<List<ItemProduct>> snapshot ;
-  MyTable({Key? key , required this.tableBloc , required this.snapshot}) : super(key: key);
-
-  final initialRow = 
-    TableRow(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Insumos',style: _colTitleStyle()),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Tono'   ,style: _colTitleStyle()),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Cant'   ,style: _colTitleStyle()),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Rend'   ,style: _colTitleStyle()),
-        )
-    ]);
+  const MyTable({Key? key , required this.tableBloc , required this.snapshot}) : super(key: key);
 
   @override
+  State<MyTable> createState() => _MyTableState();
+}
+
+class _MyTableState extends State<MyTable> {
+  @override
   Widget build(BuildContext context) {
-    return Table(
-      border: TableBorder.all(color: Colors.white),
-      children: _createTable(initialRow , snapshot , tableBloc));
+    final double width = MediaQuery.of(context).size.width / 4.5;
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          children: _createTiles(widget.tableBloc, width)
+        ),
+      ),
+    );
+  }
+  _createTiles(TableBloc tableBloc,double width){
+
+    final initialRow = ListTile(title: Row(
+      children: [
+        SizedBox(width: width , child: Center(child: Text('Nombre' , style: _colTitleStyle()))), 
+        SizedBox(width: width , child: Center(child: Text('Tono', style: _colTitleStyle()))), 
+        SizedBox(width: width , child: Center(child: Text('Cant', style: _colTitleStyle()))),
+        SizedBox(width: width , child: Center(child: Text('Rend', style: _colTitleStyle())))
+      ]));
+    List<Widget> rowWidgets = [initialRow];
+
+    for (var element in tableBloc.lastValue) {
+      final tempWidget = Dismissible(
+        onDismissed: (direction) {
+          setState(() {
+            var itemList = tableBloc.lastValue;
+            itemList.removeWhere((e) => e.nombre == element.nombre);
+            tableBloc.tableSink(itemList);
+          });
+        },
+        background: Container(child: const Icon(Icons.delete,color: Colors.white) , color: Colors.black),
+        key: UniqueKey(), 
+        child: ListTile(
+          title: Container(
+            padding: const EdgeInsets.only(left: 5),
+            decoration: BoxDecoration(border: Border.all(color: Colors.white,), borderRadius: BorderRadius.circular(5)),
+            child: Row(
+              children: [
+                SizedBox(width: width , child: Center(child: Text(element.nombre , style: const TextStyle(color: Colors.white)))), 
+                SizedBox(width: width , child: Center(child: Text(element.tono ?? '', style: const TextStyle(color: Colors.white)))), 
+                SizedBox(width: width , child: Center(child: Text(element.cantidad.toString(), style: const TextStyle(color: Colors.white)))),
+                SizedBox(width: width , child: Center(child: Text(element.rendimiento ?? '', style: const TextStyle(color: Colors.white))))
+              ]),
+          )));
+      rowWidgets.add(tempWidget);
+  }
+    return rowWidgets;
   }
 }
 
@@ -41,30 +68,6 @@ _colTitleStyle(){
   return const TextStyle(color: Colors.greenAccent,fontWeight: FontWeight.bold);
 }
 
-_createTable(TableRow initialRow , AsyncSnapshot<List<ItemProduct>> snapshot , TableBloc tableBloc){
-  List<TableRow> rows = [initialRow];
-    for (var item in tableBloc.lastValue) {
-      final tempRow = 
-        TableRow(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(item.nombre ,style: const TextStyle(color: Colors.white)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(item.tono ?? '',style: const TextStyle(color: Colors.white)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(item.cantidad.toString(),style: const TextStyle(color: Colors.white)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(item.rendimiento ?? '',style: const TextStyle(color: Colors.white)),
-            ),
-          ]);
-      rows.add(tempRow);
-    }
-  return rows;
+_createBorders(){
+  return const Border(bottom: BorderSide(color: Colors.white),left: BorderSide(color: Colors.white), right: BorderSide(color: Colors.white),top: BorderSide(color: Colors.white));
 }
