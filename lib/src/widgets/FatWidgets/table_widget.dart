@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pelu_stock/src/models/item_product.dart';
 
 import '../../bloc/table_bloc.dart';
@@ -6,7 +7,8 @@ import '../../bloc/table_bloc.dart';
 class MyTable extends StatefulWidget {
   final TableBloc tableBloc ;
   final AsyncSnapshot<List<ItemProduct>> snapshot ;
-  const MyTable({Key? key , required this.tableBloc , required this.snapshot}) : super(key: key);
+  final Function createRoute ;
+  const MyTable({Key? key , required this.tableBloc , required this.snapshot, required this.createRoute}) : super(key: key);
 
   @override
   State<MyTable> createState() => _MyTableState();
@@ -36,38 +38,63 @@ class _MyTableState extends State<MyTable> {
     List<Widget> rowWidgets = [initialRow];
 
     for (var element in tableBloc.lastValue) {
-      final tempWidget = Dismissible(
-        onDismissed: (direction) {
-          setState(() {
-            var itemList = tableBloc.lastValue;
-            itemList.removeWhere((e) => e.nombre == element.nombre);
-            tableBloc.tableSink(itemList);
-          });
-        },
-        background: Container(child: const Icon(Icons.delete,color: Colors.white) , color: Colors.black),
-        key: UniqueKey(), 
-        child: ListTile(
-          title: Container(
-            padding: const EdgeInsets.only(left: 5),
-            decoration: BoxDecoration(border: Border.all(color: Colors.white,), borderRadius: BorderRadius.circular(5)),
-            child: Row(
-              children: [
-                SizedBox(width: width , child: Center(child: Text(element.nombre , style: const TextStyle(color: Colors.white)))), 
-                SizedBox(width: width , child: Center(child: Text(element.tono ?? '', style: const TextStyle(color: Colors.white)))), 
-                SizedBox(width: width , child: Center(child: Text(element.cantidad.toString(), style: const TextStyle(color: Colors.white)))),
-                SizedBox(width: width , child: Center(child: Text(element.rendimiento ?? '', style: const TextStyle(color: Colors.white))))
-              ]),
-          )));
+      final tempWidget = _buildListTile(tableBloc,element,width);
       rowWidgets.add(tempWidget);
-  }
+    }
     return rowWidgets;
+  }
+  
+  _buildListTile(TableBloc tableBloc , ItemProduct itemProduct, double width) {
+    return Slidable(
+      key: UniqueKey(), 
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(), 
+        children: [
+          SlidableAction(
+            onPressed: (context) {
+              setState(() {
+                var itemList = tableBloc.lastValue;
+                itemList.removeWhere((e) => e == itemProduct);
+                tableBloc.tableSink(itemList);
+              });
+            },        
+            borderRadius: const BorderRadius.horizontal(left: Radius.circular(5)),
+            flex: 1,     
+            backgroundColor: const Color(0xFFFE4A49),
+            foregroundColor: Colors.white,
+            icon: Icons.delete,
+            label: 'Borrar',
+          ),
+          SlidableAction(
+            onPressed: (context) {
+              final element = tableBloc.lastValue.firstWhere((e) => e == itemProduct);
+              var itemList = tableBloc.lastValue;
+              itemList.removeWhere((e) => e == itemProduct);
+              tableBloc.tableSink(itemList);
+              widget.createRoute(element.codigoBarras);
+            },
+            borderRadius: const BorderRadius.horizontal(right: Radius.circular(5)),
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            icon: Icons.change_circle,
+            label: 'Cambiar',
+          ),]),
+          
+      child: ListTile(
+        title: Container(
+          padding: const EdgeInsets.only(left: 5),
+          decoration: BoxDecoration(border: Border.all(color: Colors.white,), borderRadius: BorderRadius.circular(5)),
+          child: Row(
+            children: [
+              SizedBox(width: width , child: Center(child: Text(itemProduct.nombre))), 
+              SizedBox(width: width , child: Center(child: Text(itemProduct.tono ?? ''))), 
+              SizedBox(width: width , child: Center(child: Text(itemProduct.cantidad.toString()))),
+              SizedBox(width: width , child: Center(child: Text(itemProduct.rendimiento ?? '')))
+            ]),
+        )));
   }
 }
 
 _colTitleStyle(){
   return const TextStyle(color: Colors.greenAccent,fontWeight: FontWeight.bold);
-}
-
-_createBorders(){
-  return const Border(bottom: BorderSide(color: Colors.white),left: BorderSide(color: Colors.white), right: BorderSide(color: Colors.white),top: BorderSide(color: Colors.white));
 }

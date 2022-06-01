@@ -9,7 +9,9 @@ import 'package:pelu_stock/src/widgets/SimpleWidgets/title_widget.dart';
 class PayLoad extends StatefulWidget {
   final String barcode;
   final TableBloc tableBloc;
-  const PayLoad({Key? key , required this.barcode , required this.tableBloc}) : super(key: key);
+  final String? initialCant;
+  final String? initialRend;
+  const PayLoad({Key? key , required this.barcode , required this.tableBloc , this.initialCant,this.initialRend}) : super(key: key);
 
   @override
   State<PayLoad> createState() => _PayLoadState();
@@ -20,8 +22,13 @@ class _PayLoadState extends State<PayLoad> {
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController rendimientoController = TextEditingController();
   late Future<ItemProduct?> product = insumosGet(widget.barcode);
-  ItemProduct itemProduct = const ItemProduct('', '', 0, '', null , '');
-
+  ItemProduct itemProduct = const ItemProduct('','','','','', '', 0, '', null , '');
+  @override
+  void initState() {
+    cantidadController.text = widget.initialCant ?? '';
+    rendimientoController.text = widget.initialRend ?? '';
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ItemProduct?>(
@@ -37,13 +44,12 @@ class _PayLoadState extends State<PayLoad> {
   
   _createPayload(AsyncSnapshot<ItemProduct?> snapshot) {
     return Scaffold(
-      backgroundColor: Colors.black,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const MyTitle(title: 'Insumo'),
           const Spacer(flex: 1),
-          Text(snapshot.data!.nombre ,style: const TextStyle(color: Colors.white)),
+          Text(snapshot.data!.nombre),
           const Spacer(flex: 1),
           MyTextField(width:  MediaQuery.of(context).size.width / 1.2,controller: cantidadController , context: context, hintText: 'Cantidad', isEnabled: true , inputType: TextInputType.number),
           const Spacer(flex: 1),
@@ -53,7 +59,7 @@ class _PayLoadState extends State<PayLoad> {
             alignment: Alignment.center,
             child: ElevatedButton(
               onPressed: () {
-                ItemProduct itemProduct = ItemProduct(snapshot.data!.type, snapshot.data!.nombre, int.parse(cantidadController.text), rendimientoController.text,null, widget.barcode);
+                ItemProduct itemProduct = ItemProduct(snapshot.data!.type , snapshot.data!.id,snapshot.data!.marcaId,snapshot.data!.lineaTinturaId,snapshot.data!.marca, snapshot.data!.nombre, int.parse(cantidadController.text), rendimientoController.text,snapshot.data!.tono, snapshot.data!.codigoBarras);
                 final List<ItemProduct> listItemProduct = widget.tableBloc.lastValue;
                 listItemProduct.add(itemProduct);
                 widget.tableBloc.tableSink(listItemProduct);

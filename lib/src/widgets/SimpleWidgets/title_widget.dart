@@ -9,7 +9,7 @@ class MyTitle extends StatelessWidget {
     return SafeArea(
       child: Align(
         alignment: Alignment.center,
-        child: Text(title ?? '↓§↓↨↑→',style: const TextStyle(color: Colors.white,fontSize: 25,fontWeight: FontWeight.bold))),
+        child: Text(title ?? '↓§↓↨↑→',style: const TextStyle(fontSize: 25,fontWeight: FontWeight.bold))),
     );
   }
 }

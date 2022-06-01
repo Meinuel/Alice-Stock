@@ -30,6 +30,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Alice Stock',
       theme: ThemeData(
+        dialogTheme: const DialogTheme(titleTextStyle: TextStyle(color: Colors.black),contentTextStyle: TextStyle(color: Colors.black)),
+        scaffoldBackgroundColor:Colors.black,
+        hintColor: Colors.white,
+        textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.white,displayColor: Colors.white),
         primarySwatch: Colors.blue,
       ),
       home: const BottomNavigationPage(),
@@ -55,7 +59,6 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black54,
       body: bottomBarItems.elementAt(selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,

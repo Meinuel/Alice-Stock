@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pelu_stock/src/api/request.dart';
 import 'package:pelu_stock/src/models/tinturas.dart';
+import 'package:pelu_stock/src/screens/error.dart';
 
 import '../models/marcas.dart';
 import '../styles/button_style.dart';
@@ -36,7 +37,8 @@ class _MasterPageState extends State<MasterPage> {
     return FutureBuilder(
       future: productos,
       builder: (context,snapshot) =>
-        snapshot.connectionState == ConnectionState.waiting ? _createLoader() : _createMaster(snapshot)
+        snapshot.connectionState == ConnectionState.waiting ? _createLoader() : 
+          snapshot.data == 'Error' ? _handleError() : _createMaster(snapshot)
     );
   }
   setProductType(Object? newType){
@@ -104,13 +106,14 @@ class _MasterPageState extends State<MasterPage> {
   }
   
   _createMaster(AsyncSnapshot snapshot) {
+
     return Center(
       child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         MyTitle(title: widget.title),
         ScannContainer(controller: _barcodeTextController),
-        DropDownMenu(marcas: snapshot.data[0] , hintText: 'Marca' ,setItem: setMarca ),
+        DropDownMenu(marcas: snapshot.data[0], hintText: 'Marca' ,setItem: setMarca ),
         ProductType(setLinea: setLinea,setSelectedType: setProductType , selectedItem: productType ,productNameController: _productNameController, tonoController: _tonoController , lineasTinturas: snapshot.data[1]),
         const SizedBox(),
         ElevatedButton(
@@ -121,5 +124,14 @@ class _MasterPageState extends State<MasterPage> {
       ],
     ),
   );
+  }
+  
+  _handleError() {
+    return ErrorPage(reload: reaload);
   } 
+  reaload(){
+    setState(() {
+      productos = marcasGetAll();
+    });
+  }
 }

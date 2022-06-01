@@ -8,7 +8,7 @@ class MyDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(alignment: Alignment.center,height: 100,child: Text(message))
+      child: Container(alignment: Alignment.center,height: 100,child: Text(message,style: const TextStyle(color: Colors.black),))
     );
   }
 }

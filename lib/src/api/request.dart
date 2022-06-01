@@ -1,9 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:pelu_stock/src/models/marcas.dart';
 import 'package:pelu_stock/src/models/tinturas.dart';
-import 'dart:convert' as convert;
 import 'package:xml/xml.dart';
 
 import '../models/item_product.dart';
@@ -19,7 +17,8 @@ marcasGetAll() async {
     ''';
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
   String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
-  var rsp = await http.post(
+  try {
+    var rsp = await http.post(
     url,
     headers: {
       'Host':'salonalice.com.ar',
@@ -29,20 +28,24 @@ marcasGetAll() async {
     },
     body: bodyRequest
   );
+    var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
+    final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
+    final jsonData = parseRsp(res);
+    List<Marcas> marcas = [];
 
-  var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
-  final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  final jsonData = parseRsp(res);
-  List<Marcas> marcas = [];
+    for (var element in jsonData) {
+      var json = jsonDecode(element);
+      final Marcas marca = Marcas(json['Id'], json['Nombre']); 
+      marcas.add(marca);
+    }
 
-  for (var element in jsonData) {
-    var json = jsonDecode(element);
-    final Marcas marca = Marcas(json['Id'], json['Nombre']); 
-    marcas.add(marca);
+    final todo = await tinturasGetAll(marcas);
+    return todo;
+
+  } catch (e) {
+    return 'Error';
   }
 
-  final todo = await tinturasGetAll(marcas);
-  return todo;
 }
 
 tinturasGetAll(List<Marcas> marcas) async {
@@ -100,7 +103,6 @@ insumosSave(barra , marcaId , esTintura , lineaId , tono , nombre , id) async {
         </soapenv:Body>
     </soapenv:Envelope>
     ''';
-  print(bodyRequest);
 
   var rsp = await http.post(
     url,
@@ -118,10 +120,10 @@ insumosSave(barra , marcaId , esTintura , lineaId , tono , nombre , id) async {
   return response == '' ? 'ok' : 'error';
 }
 
-reporteConsumo(desde , hasta) async {
+reporteConsumo(String desde , String hasta) async {
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
   String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
-
+  
   var bodyRequest = '''<?xml version="1.0" encoding="utf-8"?>
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="https://salonalice.com.ar/webservices/wsStock.php">
         <soapenv:Header/>
@@ -148,8 +150,14 @@ reporteConsumo(desde , hasta) async {
 
   var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
   final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  print(res);
-  return res;
+  if(res != '[[]]'){
+    const String lares = '[[{Fecha:2022-05-30,TipoOperacion:-1,CodigoDeBarras:007AR123456A,MarcaNombre:Alfaparf,InsumoNombre:MASCARA LDKT PASO 4,Tono:,Cantidad:1},{Fecha:2022-05-30,TipoOperacion:-1,CodigoDeBarras:007AR123456C,MarcaNombre:Issue,InsumoNombre:Polvo Decolorante W&ampW,Tono:,Cantidad:1},{Fecha:2022-05-31,TipoOperacion:-1,CodigoDeBarras:007AR123456A,MarcaNombre:Alfaparf,InsumoNombre:MASCARA LDKT PASO 4,Tono:,Cantidad:1},{Fecha:2022-05-31,TipoOperacion:-1,CodigoDeBarras:007AR123456C,MarcaNombre:Issue,InsumoNombre:Polvo Decolorante W&ampW,Tono:,Cantidad:1}]]';
+    final List list = parseRsp(lares);
+    //final json = jsonDecode(jsonReporte[0]);
+    return list;
+  }else{
+    return null;
+  } 
 }
 
 Future<ItemProduct?> insumosGet(String barcode) async {
@@ -163,11 +171,11 @@ Future<ItemProduct?> insumosGet(String barcode) async {
             <ser:InsumosGet xmlns="https://salonalice.com.ar/webservices/wsStock.php">
                 <codigoBarras>$barcode</codigoBarras>
             </ser:InsumosGet>
-        </soapenv:Body>
+        </soapenv:Body> 
     </soapenv:Envelope>
     ''';
-
-  var rsp = await http.post(
+  try {
+    var rsp = await http.post(
     url,
     headers: {
       'Host':'salonalice.com.ar',
@@ -180,14 +188,15 @@ Future<ItemProduct?> insumosGet(String barcode) async {
 
   var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
   final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  print(res);
   if(res != '[[]]'){
     final jsonDataInsumo = parseRsp(res);
     final json = jsonDecode(jsonDataInsumo[0]);
-    print(json);
-    final ItemProduct product = ItemProduct(json['EsTintura'] == '0' ? 'producto' : 'tintura', json['NombreItem'], 0, '0', json['Tono'], json['CodigoDeBarras']);
+    final ItemProduct product = ItemProduct(json['EsTintura'] == '0' ? 'producto' : 'tintura',json['id'],json['MarcaId'],json['LineaTinturaId'],json['MarcaNombre'], json['NombreItem'], 0, '0', json['Tono'], json['CodigoDeBarras']);
     return product;
   }else{
+    return null;
+  }
+  } catch (e) {
     return null;
   }
 }
@@ -204,10 +213,9 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
   String temp = '';
 
   for (var element in productos) {
-    temp = temp + '{"fecha":$date","codigoBarras":"${element.codigoBarras}","cantidad":"${element.cantidad}","rendimiento":"${element.rendimiento}"},';
+    temp = temp + '{"fecha":"$date","codigoBarras":"${element.codigoBarras}","cantidad":"${element.cantidad}","rendimiento":"${element.rendimiento}"},';
   }
   String json = temp.substring(0 , temp.length - 1 );
-  print(json);
   var bodyRequest = '''<?xml version="1.0" encoding="utf-8"?>
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="https://salonalice.com.ar/webservices/wsStock.php">
         <soapenv:Header/>
@@ -232,44 +240,42 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
 
   var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
   final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  print(res);
-  print(response);
   return res == '' ? 'Ok' : 'error';
   } catch (e) {
-    return null;
+   rethrow;
   }
 }
 
 parseRsp(raw){
-        List<String> lstObjects = [];
-      if(raw == ''){
-        return ['{"codigo":"1"}'];
+  List<String> lstObjects = [];
+  if(raw == ''){
+    return ['{"codigo":"1"}'];
+  }else{
+    bool isObj = false;
+    String object = '';
+    
+    for (var unit in raw.codeUnits){
+      String character = String.fromCharCode(unit);
+      if(character == '{'){
+        isObj = true;
+        object = character + '"';
+      }else if(character == ':'){
+        object = object + '"' + character + '"';
+      }else if(character == ','){
+        object = object + '"' + character + '"';
       }else{
-        bool isObj = false;
-        String object = '';
-        
-        for (var unit in raw.codeUnits){
-          String character = String.fromCharCode(unit);
-          if(character == '{'){
-            isObj = true;
-            object = character + '"';
-          }else if(character == ':'){
-            object = object + '"' + character + '"';
-          }else if(character == ','){
-            object = object + '"' + character + '"';
-          }else{
-            if(character == '}'){
-              isObj = false;
-              object = object + '"' + character;
-              lstObjects.add(object);
-              object = '';
-            }else{
-              if(isObj == true){
-                object = object + character;
-              }
-            }
+        if(character == '}'){
+          isObj = false;
+          object = object + '"' + character;
+          lstObjects.add(object);
+          object = '';
+        }else{
+          if(isObj == true){
+            object = object + character;
           }
-        } 
-        return lstObjects;
+        }
+      }
+    } 
+    return lstObjects;
   }
 }

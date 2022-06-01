@@ -27,13 +27,13 @@ class _DropDownMenuState extends State<DropDownMenu> {
         items:widget.marcas != null ? widget.marcas!.map((Marcas value) {
           return DropdownMenuItem<Marcas>(
             value: value,
-            child: Text(value.nombre),
+            child: Text(value.nombre,style: const TextStyle(color: Colors.black),),
           );
         }).toList() : 
         widget.tinturas!.map((Tinturas value) {
           return DropdownMenuItem<Tinturas>(
             value: value,
-            child: Text(value.nombre),
+            child: Text(value.nombre,style: const TextStyle(color: Colors.black)),
           ); 
         }).toList(),
         onChanged: (value) {
@@ -50,7 +50,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
     return Container(
       padding: const EdgeInsets.only(left: 10),
       alignment: Alignment.centerLeft,
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [ Text(selectedItem == null ?  widget.hintText : selectedItem!.nombre) , const Icon(Icons.arrow_drop_down)]),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [ Text(selectedItem == null ?  widget.hintText : selectedItem!.nombre,style: const TextStyle(color: Colors.black)) , const Icon(Icons.arrow_drop_down)]),
       height: 50,
       width: MediaQuery.of(context).size.width / 1.2,
       decoration: const BoxDecoration(color: Colors.white , borderRadius: BorderRadius.all(Radius.circular(10.0))));

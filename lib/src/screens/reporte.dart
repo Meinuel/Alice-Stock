@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pelu_stock/src/styles/button_style.dart';
 import 'package:pelu_stock/src/util/create_pdf.dart';
+import 'package:pelu_stock/src/widgets/SimpleWidgets/title_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import '../api/request.dart';
 
@@ -23,37 +24,51 @@ class _ReportPageState extends State<ReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          const Text('Periodo : '),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          const MyTitle(title: 'Reporte'),
+          Column(
             children: [
-              ElevatedButton(onPressed: () => _pickDateRange(), child: Text(_getFrom())),
-              const Icon(Icons.arrow_forward),
-              ElevatedButton(onPressed: () => _pickDateRange(), child: Text(_getUntil()))
+              const Text('Periodo : '),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(onPressed: () => _pickDateRange(), child: Text(_getFrom())),
+                  const Icon(Icons.arrow_forward),
+                  ElevatedButton(onPressed: () => _pickDateRange(), child: Text(_getUntil()))
+                ],
+              ),
             ],
           ),
           const SizedBox(height: 200),
-          ElevatedButton(
+          _dateTimeRange != null ? ElevatedButton(
             style: buttonStyle(MediaQuery.of(context).size.width / 1.2),
-            onPressed: () => _dateTimeRange != null ? isGenerated ? _share() : _generatePdf() : null, 
-            child: Text( isGenerated ? 'Compartir' : 'Generar reporte'))
+            onPressed: () => isGenerated ? _share() : _generatePdf(), 
+            child: Text( isGenerated ? 'Compartir' : 'Generar reporte')) : Container()
         ],
       )
     );
   } 
 
   _pickDateRange() async {
-    //final initialDateRange = DateTimeRange(start: DateTime.now().subtract(const Duration(days: 30)), end: DateTime.now());
     final newDateRange = await showDateRangePicker(
       locale: const Locale("es", "ES"),
       initialEntryMode: DatePickerEntryMode.calendar,
+      builder: (context,child){
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            primaryColor: Colors.blue,
+            colorScheme: const ColorScheme.dark(primary:Colors.blue),
+            buttonTheme: const ButtonThemeData(
+              textTheme: ButtonTextTheme.primary
+            ), 
+         ),
+         child: child!,);
+      },
       context: context, 
       firstDate: DateTime(2022, 1, 1), 
       lastDate: DateTime.now(),
-      //initialDateRange: initialDateRange
       );
       if ( newDateRange == null) return;
       setState(() => _dateTimeRange = newDateRange);
@@ -68,7 +83,7 @@ class _ReportPageState extends State<ReportPage> {
   }
 
   _getUntil(){
-    if ( _dateTimeRange == null){
+    if ( _dateTimeRange == null ){
       return 'Hasta';
     } else {
       return DateFormat('MM/dd/yyyy').format(_dateTimeRange!.end);
@@ -80,9 +95,12 @@ class _ReportPageState extends State<ReportPage> {
   }
   
   _generatePdf() async {
-    final response = await reporteConsumo(_dateTimeRange!.start, _dateTimeRange!.end);
-    final List<String> pathAndFile = createSavePdf([],[]);
+    final String desde = DateFormat('yyyyMMdd').format(_dateTimeRange!.start);
+    final String hasta = DateFormat('yyyyMMdd').format(_dateTimeRange!.end);
+    final List response = await reporteConsumo(desde, hasta);
+    final List<String> pathAndFile = await createSavePdf(response);
     setState(() {
+      isGenerated = true;
       fileName = pathAndFile[1];
       path = pathAndFile[0];
     });

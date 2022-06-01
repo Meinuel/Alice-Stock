@@ -56,7 +56,7 @@ class _DailyPageState extends State<DailyPage> {
           const SizedBox(height: 15),
           StreamBuilder<List<ItemProduct>>(
             stream: _tableBloc.tableStream,
-            builder: (context, snapshot) => MyTable(tableBloc: _tableBloc , snapshot: snapshot)
+            builder: (context, snapshot) => MyTable(tableBloc: _tableBloc , snapshot: snapshot,createRoute: createRoute)
           ),
           const SizedBox(height: 15),
           ElevatedButton(
@@ -67,7 +67,8 @@ class _DailyPageState extends State<DailyPage> {
               handleForm();
               setState(() {
                 isLoading = false;
-              });},
+              });
+              },
             style: buttonStyle(MediaQuery.of(context).size.width / 1.5),
             child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) : const Text('Terminar')),
           const SizedBox(height: 15),
@@ -90,13 +91,12 @@ class _DailyPageState extends State<DailyPage> {
 
   handleForm() async {
     if(_dateController.text.isNotEmpty && _tableBloc.lastValue.isNotEmpty){
-      print(_dateController.text);
       setState(() {
         isLoading = true;
       });
       consumosDiariosCreate(_tableBloc.lastValue, _dateController.text)
         .then((value) => _createDialog(value == 'Ok' ? 'Consumo registrado' : 'Error'))
-        .onError((error, stackTrace) => _createDialog('Error inesperado'));
+        .onError((error, stackTrace) => _createDialog('Error , revisa tu conexion'));
     }else{
       _createDialog('Falta informacion');
     }

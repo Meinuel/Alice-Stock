@@ -19,11 +19,9 @@ class MyTextField extends StatelessWidget {
     child: TextField(
       keyboardType: inputType ?? TextInputType.name,
       enabled: isEnabled,
-      style: const TextStyle(color: Colors.white),
       controller: controller,
       decoration: InputDecoration(
         border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-        hintStyle: const TextStyle(color: Colors.white),
         hintText: hintText)
     ),
   );

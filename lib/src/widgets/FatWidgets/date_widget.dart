@@ -13,14 +13,13 @@ class MyDate extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        const Text('Fecha',style: TextStyle(color: Colors.white)),
+        const Text('Fecha'),
         Container(
           decoration: const BoxDecoration(color: Color.fromARGB(255, 45, 43, 43),borderRadius: BorderRadius.all(Radius.circular(10.0))),
           height: 50,
           width: 200,
           child: DateTimeField(
-            //controller: dateController,
-            style: const TextStyle(color: Colors.white , fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold),
             initialValue: DateTime.now(),
             decoration: const InputDecoration(
               border: InputBorder.none,
