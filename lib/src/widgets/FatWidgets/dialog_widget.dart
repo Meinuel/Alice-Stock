@@ -12,3 +12,10 @@ class MyDialog extends StatelessWidget {
     );
   }
 }
+
+  createDialog( String message , BuildContext context , Function? cleanState) {
+    return showDialog(context: context, builder: (context){
+      return MyDialog(message: message);
+    }).then((value) => message == 'Ok' && cleanState != null ? cleanState() : DoNothingAction()
+    );
+  }

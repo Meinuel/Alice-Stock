@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pelu_stock/src/screens/pdf.dart';
 import 'package:pelu_stock/src/styles/button_style.dart';
 import 'package:pelu_stock/src/util/create_pdf.dart';
+import 'package:pelu_stock/src/widgets/FatWidgets/dialog_widget.dart';
 import 'package:pelu_stock/src/widgets/SimpleWidgets/title_widget.dart';
 import 'package:share_plus/share_plus.dart';
 import '../api/request.dart';
@@ -16,9 +20,9 @@ class ReportPage extends StatefulWidget {
 class _ReportPageState extends State<ReportPage> {
 
   DateTimeRange? _dateTimeRange ;
-  bool isGenerated = false;
   String fileName = '';
   String path = '';
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +45,11 @@ class _ReportPageState extends State<ReportPage> {
               ),
             ],
           ),
-          const SizedBox(height: 200),
+          SizedBox(height: 200 , child: isLoading ? const Center(child: CircularProgressIndicator()) : Container()),
           _dateTimeRange != null ? ElevatedButton(
             style: buttonStyle(MediaQuery.of(context).size.width / 1.2),
-            onPressed: () => isGenerated ? _share() : _generatePdf(), 
-            child: Text( isGenerated ? 'Compartir' : 'Generar reporte')) : Container()
+            onPressed: () => _generatePdf(), 
+            child: const Text('Generar reporte')) : Container()
         ],
       )
     );
@@ -95,14 +99,21 @@ class _ReportPageState extends State<ReportPage> {
   }
   
   _generatePdf() async {
+    setState(() {
+      isLoading = true;
+    });
     final String desde = DateFormat('yyyyMMdd').format(_dateTimeRange!.start);
     final String hasta = DateFormat('yyyyMMdd').format(_dateTimeRange!.end);
     final List response = await reporteConsumo(desde, hasta);
-    final List<String> pathAndFile = await createSavePdf(response);
+    if(response.isEmpty){
+      return createDialog('No hay consumos registrados para estas fechas', context,null);
+    }
+    final File file = await createSavePdf(response);
     setState(() {
-      isGenerated = true;
-      fileName = pathAndFile[1];
-      path = pathAndFile[0];
+      isLoading = false;
+      fileName = path.split('/').last;
+      path = file.path;
     });
+    Navigator.push(context , MaterialPageRoute(builder: (context) => PDFViewer(file: file)));
   }
 }

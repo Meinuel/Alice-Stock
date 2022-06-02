@@ -10,7 +10,6 @@ import 'package:pelu_stock/src/widgets/FatWidgets/date_widget.dart';
 import 'package:pelu_stock/src/widgets/FatWidgets/scann_widget.dart';
 import 'package:pelu_stock/src/widgets/FatWidgets/table_widget.dart';
 import 'package:pelu_stock/src/widgets/SimpleWidgets/title_widget.dart';
-
 import '../widgets/FatWidgets/dialog_widget.dart';
 
 class DailyPage extends StatefulWidget {
@@ -95,15 +94,16 @@ class _DailyPageState extends State<DailyPage> {
         isLoading = true;
       });
       consumosDiariosCreate(_tableBloc.lastValue, _dateController.text)
-        .then((value) => _createDialog(value == 'Ok' ? 'Consumo registrado' : 'Error'))
-        .onError((error, stackTrace) => _createDialog('Error , revisa tu conexion'));
+        .then((value) => createDialog(value == 'Ok' ? 'Consumo registrado' : 'Error', context , value == 'Ok' ? _cleanState() : null))
+        .onError((error, stackTrace) => createDialog('Error , revisa tu conexion',context,null));
     }else{
-      _createDialog('Falta informacion');
+      createDialog('Falta informacion',context,null);
     }
   }
-  _createDialog( String message ) {
-    return showDialog(context: context, builder: (context){
-      return MyDialog(message: message);
+
+  _cleanState(){
+    setState(() {
+      _tableBloc.tableSink([]);
     });
   }
 }

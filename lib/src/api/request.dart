@@ -136,8 +136,8 @@ reporteConsumo(String desde , String hasta) async {
         </soapenv:Body>
     </soapenv:Envelope>
     ''';
-
-  var rsp = await http.post(
+  try {
+    var rsp = await http.post(
     url,
     headers: {
       'Host':'salonalice.com.ar',
@@ -148,17 +148,20 @@ reporteConsumo(String desde , String hasta) async {
     body: bodyRequest
   );
 
-  var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
-  final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  if(res != '[[]]'){
-    const String lares = '[[{Fecha:2022-05-30,TipoOperacion:-1,CodigoDeBarras:007AR123456A,MarcaNombre:Alfaparf,InsumoNombre:MASCARA LDKT PASO 4,Tono:,Cantidad:1},{Fecha:2022-05-30,TipoOperacion:-1,CodigoDeBarras:007AR123456C,MarcaNombre:Issue,InsumoNombre:Polvo Decolorante W&ampW,Tono:,Cantidad:1},{Fecha:2022-05-31,TipoOperacion:-1,CodigoDeBarras:007AR123456A,MarcaNombre:Alfaparf,InsumoNombre:MASCARA LDKT PASO 4,Tono:,Cantidad:1},{Fecha:2022-05-31,TipoOperacion:-1,CodigoDeBarras:007AR123456C,MarcaNombre:Issue,InsumoNombre:Polvo Decolorante W&ampW,Tono:,Cantidad:1}]]';
-    final List list = parseRsp(lares);
-    //final json = jsonDecode(jsonReporte[0]);
-    return list;
-  }else{
-    return null;
-  } 
-}
+    var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
+    final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
+    if(res != '[[]]'){
+      //const String lares = '[[{Fecha:2022-05-30,TipoOperacion:-1,CodigoDeBarras:007AR123456A,MarcaNombre:Alfaparf,InsumoNombre:MASCARA LDKT PASO 4,Tono:,Cantidad:1},{Fecha:2022-05-30,TipoOperacion:-1,CodigoDeBarras:007AR123456C,MarcaNombre:Issue,InsumoNombre:Polvo Decolorante W&ampW,Tono:,Cantidad:1},{Fecha:2022-05-31,TipoOperacion:-1,CodigoDeBarras:007AR123456A,MarcaNombre:Alfaparf,InsumoNombre:MASCARA LDKT PASO 4,Tono:,Cantidad:1},{Fecha:2022-05-31,TipoOperacion:-1,CodigoDeBarras:007AR123456C,MarcaNombre:Issue,InsumoNombre:Polvo Decolorante W&ampW,Tono:,Cantidad:1}]]';
+      final List jsonStr = parseRsp(res);
+      return jsonStr;
+    }else{
+      return [];
+    } 
+  } catch (e) {
+    return [];
+  }
+
+ }
 
 Future<ItemProduct?> insumosGet(String barcode) async {
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
@@ -210,12 +213,12 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
 
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
   String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
-  String temp = '';
+  String temp = '{"fecha":"$date","consumo":[';
 
   for (var element in productos) {
-    temp = temp + '{"fecha":"$date","codigoBarras":"${element.codigoBarras}","cantidad":"${element.cantidad}","rendimiento":"${element.rendimiento}"},';
+    temp = temp + '{"codigoBarras":"${element.codigoBarras}","cantidad":"${element.cantidad}","rendimiento":"${element.rendimiento}"},';
   }
-  String json = temp.substring(0 , temp.length - 1 );
+  String json = temp.substring(0 , temp.length - 1 ) + ']}';
   var bodyRequest = '''<?xml version="1.0" encoding="utf-8"?>
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="https://salonalice.com.ar/webservices/wsStock.php">
         <soapenv:Header/>
@@ -240,7 +243,7 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
 
   var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
   final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  return res == '' ? 'Ok' : 'error';
+  return res == '[0]' ? 'Ok' : 'error';
   } catch (e) {
    rethrow;
   }

@@ -1,27 +1,30 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
 
- Future<String> _savePdf(Document pdf, String fileName) async {
+ Future<File> _savePdf(Document pdf, String fileName) async {
     final dir = await getExternalStorageDirectory();
     final String name = '${dir!.path}/$fileName.pdf';
     final file = File(name);
     file.writeAsBytes(await pdf.save());
-    return file.path;
+    return file;
   }
 
   _createPDF(Map<String,List> map,Document pdf) {
     for (var fecha in map.keys) {
       pdf.addPage(pw.Page(
         build: (pw.Context contex) {
-          return pw.
-            Column(
+          return pw.Column(
               mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
               children: [
-                pw.Text('Fecha : $fecha'),
-                pw.Column(children: _createPage(map[fecha]!))
+                pw.Text('Fecha : $fecha' , style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 20)),
+                pw.Column(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceEvenly,
+                  children: _createPage(map[fecha]!))
               ]);
       }));
     }
@@ -30,12 +33,15 @@ import 'package:pdf/widgets.dart';
     _createPage(List listProducts) {
       List columns = listProducts.map((product) {
           return pw.Column(
-          children: [
-            pw.Text('Marca : ${product['MarcaNombre']}'),
-            pw.Text('Insumo : ${product['InsumoNombre']}'),
-            pw.Text('Tono : ${product['Tono']}'),
-            pw.Text('Cantidad : ${product['Cantidad']}'),
-        ]);
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Divider(borderStyle: pw.BorderStyle.dotted, color: PdfColor.fromHex('#37DB07'), indent: 20 , endIndent: 20),
+              pw.Text('${product['InsumoNombre']}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold,fontSize: 18)),
+              pw.SizedBox(height: 15),
+              pw.Text('Marca : ${product['MarcaNombre']}'),
+              pw.Text('Tono : ${product['Tono']}'),
+              pw.Text('Cantidad : ${product['Cantidad']}'),
+          ]);
       }).toList();
       return columns;
     }
@@ -45,8 +51,8 @@ import 'package:pdf/widgets.dart';
     Map<String,List> map = _handleConsumos(consumos);
     _createPDF(map,pdf);
     final fileName = _handleFileName(map.keys.first , map.keys.last);
-    String path = await _savePdf(pdf, fileName);
-    return [path , fileName];
+    File file = await _savePdf(pdf, fileName);
+    return file;
   }
   
   _handleConsumos(List consumos) {
