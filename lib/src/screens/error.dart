@@ -12,6 +12,7 @@ class ErrorPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text('Error , revisa tu conexion'),
+            const SizedBox(height: 20,),
             ElevatedButton(onPressed: () => reload(), child: const Text('Reintentar'))
           ],
         ),

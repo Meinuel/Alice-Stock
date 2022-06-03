@@ -22,7 +22,7 @@ class _PayLoadState extends State<PayLoad> {
   final TextEditingController cantidadController = TextEditingController();
   final TextEditingController rendimientoController = TextEditingController();
   late Future<ItemProduct?> product = insumosGet(widget.barcode);
-  ItemProduct itemProduct = const ItemProduct('','','','','', '', 0, '', null , '');
+  //ItemProduct itemProduct = const ItemProduct('','','','','', '', 0, '', null , '');
   @override
   void initState() {
     cantidadController.text = widget.initialCant ?? '';
@@ -49,11 +49,11 @@ class _PayLoadState extends State<PayLoad> {
         children: [
           const MyTitle(title: 'Insumo'),
           const Spacer(flex: 1),
-          Text(snapshot.data!.nombre),
+          Text(snapshot.data!.nombre , style: const TextStyle(color: Colors.greenAccent , fontWeight: FontWeight.bold)),
           const Spacer(flex: 1),
           MyTextField(width:  MediaQuery.of(context).size.width / 1.2,controller: cantidadController , context: context, hintText: 'Cantidad', isEnabled: true , inputType: TextInputType.number),
           const Spacer(flex: 1),
-          MyTextField(width:  MediaQuery.of(context).size.width / 1.2,controller: rendimientoController, context: context, hintText: 'Rendimiento', isEnabled: true , inputType: TextInputType.number),
+          snapshot.data!.type == 'producto' ? MyTextField(width:  MediaQuery.of(context).size.width / 1.2,controller: rendimientoController, context: context, hintText: 'Rendimiento', isEnabled: true , inputType: TextInputType.number) : Container(),
           const Spacer(flex: 6),
           Align(
             alignment: Alignment.center,

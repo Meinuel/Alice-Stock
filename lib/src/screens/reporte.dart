@@ -45,11 +45,13 @@ class _ReportPageState extends State<ReportPage> {
               ),
             ],
           ),
-          SizedBox(height: 200 , child: isLoading ? const Center(child: CircularProgressIndicator()) : Container()),
-          _dateTimeRange != null ? ElevatedButton(
+          //SizedBox(height: 200 , child: isLoading ? const Center(child: CircularProgressIndicator()) : Container()),
+          _dateTimeRange != null ? 
+          ElevatedButton(
             style: buttonStyle(MediaQuery.of(context).size.width / 1.2),
-            onPressed: () => _generatePdf(), 
-            child: const Text('Generar reporte')) : Container()
+            onPressed: isLoading ? (){} : () => _generatePdf() , 
+            child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) : const Text('Generar reporte')) 
+          : Container()
         ],
       )
     );
@@ -93,11 +95,7 @@ class _ReportPageState extends State<ReportPage> {
       return DateFormat('MM/dd/yyyy').format(_dateTimeRange!.end);
     }
   }
-  
-  _share() {
-    Share.shareFiles([path], subject: fileName);
-  }
-  
+
   _generatePdf() async {
     setState(() {
       isLoading = true;
@@ -106,6 +104,9 @@ class _ReportPageState extends State<ReportPage> {
     final String hasta = DateFormat('yyyyMMdd').format(_dateTimeRange!.end);
     final List response = await reporteConsumo(desde, hasta);
     if(response.isEmpty){
+      setState(() {
+        isLoading = false;
+      });
       return createDialog('No hay consumos registrados para estas fechas', context,null);
     }
     final File file = await createSavePdf(response);

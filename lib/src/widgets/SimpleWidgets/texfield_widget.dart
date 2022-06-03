@@ -14,13 +14,14 @@ class MyTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
     decoration: const BoxDecoration(color: Color.fromARGB(255, 45, 43, 43),borderRadius: BorderRadius.all(Radius.circular(10.0))),
-    height: 50,
+    height: 40,
     width: width,
     child: TextField(
       keyboardType: inputType ?? TextInputType.name,
       enabled: isEnabled,
       controller: controller,
       decoration: InputDecoration(
+        contentPadding: const EdgeInsets.all(10),
         border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
         hintText: hintText)
     ),

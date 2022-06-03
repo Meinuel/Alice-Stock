@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.pelu_stock">
+  <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="pelu_stock"
+        android:label="Alice Stock"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

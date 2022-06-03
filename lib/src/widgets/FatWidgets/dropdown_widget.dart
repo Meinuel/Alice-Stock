@@ -16,18 +16,20 @@ class DropDownMenu extends StatefulWidget {
 }
 
 class _DropDownMenuState extends State<DropDownMenu> {
-  Marcas? selectedItem ;
+  dynamic selectedItem ;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(  
       child: DropdownButton2<dynamic>(
+        dropdownDecoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
         underline: Container(),
         value: selectedItem,
         customButton: _createCustomBtn(),
         items:widget.marcas != null ? widget.marcas!.map((Marcas value) {
           return DropdownMenuItem<Marcas>(
             value: value,
-            child: Text(value.nombre,style: const TextStyle(color: Colors.black),),
+            child: Text(value.nombre,style: const TextStyle(color: Colors.black)),
           );
         }).toList() : 
         widget.tinturas!.map((Tinturas value) {
@@ -50,8 +52,8 @@ class _DropDownMenuState extends State<DropDownMenu> {
     return Container(
       padding: const EdgeInsets.only(left: 10),
       alignment: Alignment.centerLeft,
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [ Text(selectedItem == null ?  widget.hintText : selectedItem!.nombre,style: const TextStyle(color: Colors.black)) , const Icon(Icons.arrow_drop_down)]),
-      height: 50,
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [ Text(selectedItem == null ?  widget.hintText : selectedItem!.nombre,style: const TextStyle(color: Colors.black , fontWeight: FontWeight.bold)) , const Icon(Icons.arrow_drop_down)]),
+      height: 40,
       width: MediaQuery.of(context).size.width / 1.2,
       decoration: const BoxDecoration(color: Colors.white , borderRadius: BorderRadius.all(Radius.circular(10.0))));
   }

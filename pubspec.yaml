@@ -41,7 +41,7 @@ dependencies:
   dropdown_button2: ^1.5.1
   flutter_barcode_scanner: ^2.0.0
   flutter:
-    sdk: flutter
+    sdk: flutter 
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -53,14 +53,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^1.0.0
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

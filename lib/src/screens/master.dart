@@ -74,7 +74,7 @@ class _MasterPageState extends State<MasterPage> {
       setState(() {
         isLoading = true;
       });
-      insumosSave(_barcodeTextController.text , marca.id , productType == 'Producto' ? false : true , linea.id , _tonoController.text , _productNameController.text , '')
+      insumosSave(_barcodeTextController.text , marca.id , productType == 'Producto' ? false : true , linea.id , _tonoController.text , _productNameController.text , '0')
         .then((value) {
           setState((){
             isLoading = false;
@@ -118,7 +118,7 @@ class _MasterPageState extends State<MasterPage> {
         const SizedBox(),
         ElevatedButton(
           onPressed: () => _handleForm(), 
-          child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) :  const Text('ok'),
+          child: isLoading ? const SizedBox(width: 15,height: 15,child: CircularProgressIndicator(color: Colors.white )) :  const Text('Ok'),
             style: buttonStyle(MediaQuery.of(context).size.width / 1.5)
         )
       ],

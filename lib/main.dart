@@ -60,27 +60,36 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: bottomBarItems.elementAt(selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.brightness_6),
-            label: 'Diario',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school_outlined),
-            label: 'Maestro',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'Reporte',
-          ),
-        ],
-        currentIndex: selectedIndex,
-        selectedItemColor: Colors.red,
-        onTap: (index){setState(() {
-            selectedIndex = index;
-        });},
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+        canvasColor: Colors.white,
+        primaryColor: Colors.greenAccent,
+        textTheme: Theme
+            .of(context)
+            .textTheme
+            .copyWith(caption: const TextStyle(color: Colors.yellow))),
+        child: BottomNavigationBar(
+         // backgroundColor: Colors.white,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.brightness_6),
+              label: 'Diario',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.school_outlined),
+              label: 'Maestro',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history,shadows: [Shadow(color: Colors.black)]),
+              label: 'Reporte',
+            ),
+          ],
+          currentIndex: selectedIndex,
+          selectedItemColor: Colors.green,
+          onTap: (index){setState(() {
+              selectedIndex = index;
+          });},
+        ),
       ),
     );
   }
