@@ -9,7 +9,8 @@ class DropDownMenu extends StatefulWidget {
   final List<Tinturas>? tinturas;
   final String hintText;
   final Function setItem;
-  const DropDownMenu({Key? key , this.marcas, this.tinturas ,required this.hintText , required this.setItem}) : super(key: key);
+  final bool? esTintura;
+  const DropDownMenu({Key? key , this.marcas, this.tinturas ,required this.hintText , required this.setItem , this.esTintura}) : super(key: key);
 
   @override
   State<DropDownMenu> createState() => _DropDownMenuState();
@@ -22,6 +23,7 @@ class _DropDownMenuState extends State<DropDownMenu> {
   Widget build(BuildContext context) {
     return SizedBox(  
       child: DropdownButton2<dynamic>(
+        dropdownOverButton: true,
         dropdownDecoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(10))),
         underline: Container(),
         value: selectedItem,
@@ -38,23 +40,32 @@ class _DropDownMenuState extends State<DropDownMenu> {
             child: Text(value.nombre,style: const TextStyle(color: Colors.black)),
           ); 
         }).toList(),
-        onChanged: (value) {
+        onChanged: widget.esTintura != false ? (value) {
           widget.setItem(value);
           setState(() {
             selectedItem = value;
           });
-        }
+        } : null
       )
         );
   }
   
   _createCustomBtn() {
     return Container(
+      
       padding: const EdgeInsets.only(left: 10),
       alignment: Alignment.centerLeft,
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,children: [ Text(selectedItem == null ?  widget.hintText : selectedItem!.nombre,style: const TextStyle(color: Colors.black , fontWeight: FontWeight.bold)) , const Icon(Icons.arrow_drop_down)]),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [ 
+          Text(selectedItem == null ?  widget.hintText : selectedItem!.nombre,style: TextStyle(color: Colors.black , fontWeight: widget.esTintura != false ? FontWeight.bold : FontWeight.normal)) , 
+          const Icon(Icons.arrow_drop_down)
+          ]
+        ),
       height: 40,
       width: MediaQuery.of(context).size.width / 1.2,
-      decoration: const BoxDecoration(color: Colors.white , borderRadius: BorderRadius.all(Radius.circular(10.0))));
+      decoration: BoxDecoration(
+        color: widget.esTintura != false ? Colors.white : Colors.grey , 
+        borderRadius: const BorderRadius.all(Radius.circular(10.0))));
   }
 }

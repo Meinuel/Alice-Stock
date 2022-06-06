@@ -24,21 +24,15 @@ class _DailyPageState extends State<DailyPage> {
   String date = _handleDate();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _barcodeTextController = TextEditingController();
-  //final StreamController<List<ItemProduct>> _tableController = StreamController();
   final TableBloc _tableBloc = TableBloc();
   bool isLoading = false;
+  
   @override
   void initState() {
     _tableBloc.tableSink([]);
     _dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     super.initState();
   }
-
-  // @override
-  // void dispose() {
-  //   _tableController;
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {

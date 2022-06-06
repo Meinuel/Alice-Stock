@@ -17,10 +17,12 @@ class MyTextField extends StatelessWidget {
     height: 40,
     width: width,
     child: TextField(
+      style: !isEnabled ? TextStyle(color: Colors.grey[600]) : null,
       keyboardType: inputType ?? TextInputType.name,
       enabled: isEnabled,
       controller: controller,
       decoration: InputDecoration(
+        enabled: isEnabled,
         contentPadding: const EdgeInsets.all(10),
         border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
         hintText: hintText)

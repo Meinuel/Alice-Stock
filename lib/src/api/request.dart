@@ -116,8 +116,8 @@ insumosSave(barra , marcaId , esTintura , lineaId , tono , nombre , id) async {
   );
 
   var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
-  //final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
-  return response == '' ? 'ok' : 'error';
+  final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
+  return res == '[0]' ? 'ok' : 'error';
 }
 
 reporteConsumo(String desde , String hasta) async {

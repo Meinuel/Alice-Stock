@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:pelu_stock/src/api/request.dart';
 import 'package:pelu_stock/src/models/tinturas.dart';
 import 'package:pelu_stock/src/screens/error.dart';
-
 import '../models/marcas.dart';
 import '../styles/button_style.dart';
 import '../widgets/FatWidgets/dialog_widget.dart';
@@ -74,14 +73,14 @@ class _MasterPageState extends State<MasterPage> {
       setState(() {
         isLoading = true;
       });
-      insumosSave(_barcodeTextController.text , marca.id , productType == 'Producto' ? false : true , linea.id , _tonoController.text , _productNameController.text , '0')
+      insumosSave(_barcodeTextController.text , marca.id , productType == 'Producto' ? false : true , productType == 'Producto' ? "" : linea.id , _tonoController.text , _productNameController.text , '0')
         .then((value) {
           setState((){
             isLoading = false;
           });
-          _createDialog(value == 'ok' ? 'Producto registrado' : 'error api');});
+          _createDialog(value == 'ok' ? 'Producto registrado' : 'Error , reintente');});
     }else{
-      _createDialog('Error en form');
+      _createDialog('Faltan datos');
     }
   }
 
@@ -113,8 +112,8 @@ class _MasterPageState extends State<MasterPage> {
       children: <Widget>[
         MyTitle(title: widget.title),
         ScannContainer(controller: _barcodeTextController),
-        DropDownMenu(marcas: snapshot.data[0], hintText: 'Marca' ,setItem: setMarca ),
-        ProductType(setLinea: setLinea,setSelectedType: setProductType , selectedItem: productType ,productNameController: _productNameController, tonoController: _tonoController , lineasTinturas: snapshot.data[1]),
+        DropDownMenu(marcas: snapshot.data[0], hintText: 'Marca' ,setItem: setMarca),
+        ProductType(setLinea: setLinea,setSelectedType: setProductType , selectedItem: productType ,productNameController: _productNameController, tonoController: _tonoController , lineasTinturas: snapshot.data[1] ,selectedTintura: linea),
         const SizedBox(),
         ElevatedButton(
           onPressed: () => _handleForm(), 

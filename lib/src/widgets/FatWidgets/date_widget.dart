@@ -30,7 +30,7 @@ class MyDate extends StatelessWidget {
               return showDatePicker(
                 locale: const Locale("es", "ES"),
                 context: context,
-                firstDate: DateTime(2022),
+                firstDate: _handleDateSelection(),
                 initialDate: currentValue ?? DateTime.now(),
                 lastDate: DateTime.now())
                   .then((value){
@@ -46,5 +46,17 @@ class MyDate extends StatelessWidget {
         
       ],
     );
+  }
+}
+
+_handleDateSelection() {
+  final DateTime today = DateTime.now();
+  switch (today.weekday) {
+    case 1:
+      return today.subtract(const Duration(days: 2));
+    case 2:
+      return today.subtract(const Duration(days: 3));
+    default :
+      return today.subtract(const Duration(days: 1));
   }
 }
