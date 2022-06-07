@@ -21,12 +21,12 @@ class MasterPage extends StatefulWidget {
 
 class _MasterPageState extends State<MasterPage> {
 
-  Future productos = marcasGetAll();
+  Future productos = getMarcasTinturas();
   final TextEditingController _barcodeTextController = TextEditingController();
   final TextEditingController _productNameController = TextEditingController();
   final TextEditingController _tonoController = TextEditingController();
-  Marcas marca = Marcas('' , '');
-  Tinturas linea = Tinturas('' , '');
+  Marcas? marca ;
+  Tinturas? linea ;
   late Object productType = 'Producto';
   bool isLoading = false;
 
@@ -60,11 +60,11 @@ class _MasterPageState extends State<MasterPage> {
   
   _handleForm() {
     bool hasError = false;
-    if( _barcodeTextController.text != '' && marca.nombre != '' ){
+    if( _barcodeTextController.text != '' && marca != null ){
       if( productType == 'Producto' ){
         _productNameController.text != '' ? DoNothingAction() : hasError = true;
       }else{
-        linea.nombre != '' && _tonoController.text != '' ? DoNothingAction() : hasError = true;
+        linea != null && _tonoController.text != '' && (linea!.marcaId == marca!.id) ? DoNothingAction() : hasError = true;
       }
     } else {
       hasError = true;
@@ -73,7 +73,7 @@ class _MasterPageState extends State<MasterPage> {
       setState(() {
         isLoading = true;
       });
-      insumosSave(_barcodeTextController.text , marca.id , productType == 'Producto' ? false : true , productType == 'Producto' ? "" : linea.id , _tonoController.text , _productNameController.text , '0')
+      insumosSave(_barcodeTextController.text , marca!.id , productType == 'Producto' ? 0 : 1 , productType == 'Producto' ? "" : linea!.id , productType == 'Producto' ? "" : _tonoController.text , _productNameController.text , '0')
         .then((value) {
           setState((){
             isLoading = false;
@@ -93,8 +93,8 @@ class _MasterPageState extends State<MasterPage> {
           _barcodeTextController.clear();
           _productNameController.clear();
           _tonoController.clear();
-          marca = Marcas('', '');
-          linea = Tinturas('', '');
+          marca = Marcas('','');
+          linea = Tinturas('','','','');
         });
       }
     });
@@ -105,15 +105,14 @@ class _MasterPageState extends State<MasterPage> {
   }
   
   _createMaster(AsyncSnapshot snapshot) {
-
     return Center(
       child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         MyTitle(title: widget.title),
         ScannContainer(controller: _barcodeTextController),
-        DropDownMenu(marcas: snapshot.data[0], hintText: 'Marca' ,setItem: setMarca),
-        ProductType(setLinea: setLinea,setSelectedType: setProductType , selectedItem: productType ,productNameController: _productNameController, tonoController: _tonoController , lineasTinturas: snapshot.data[1] ,selectedTintura: linea),
+        DropDownMenu(marcas: snapshot.data[0], hintText: 'Marca' ,setItem: setMarca , marca: marca , esTintura: false,productType: productType.toString(),comboType: 'Marca'),
+        ProductType(selectedMarca: marca ,setLinea: setLinea,setSelectedType: setProductType , productType: productType ,productNameController: _productNameController, tonoController: _tonoController , lineasTinturas: snapshot.data[1] ,selectedTintura: linea ),
         const SizedBox(),
         ElevatedButton(
           onPressed: () => _handleForm(), 

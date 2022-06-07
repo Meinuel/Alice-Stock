@@ -6,7 +6,7 @@ import 'package:xml/xml.dart';
 
 import '../models/item_product.dart';
 
-marcasGetAll() async {
+Future marcasGetAll() async {
   var bodyRequest = '''<?xml version="1.0" encoding="utf-8"?>
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="https://salonalice.com.ar/webservices/wsStock.php">
         <soapenv:Header/>
@@ -38,17 +38,15 @@ marcasGetAll() async {
       final Marcas marca = Marcas(json['Id'], json['Nombre']); 
       marcas.add(marca);
     }
-
-    final todo = await tinturasGetAll(marcas);
-    return todo;
+    return marcas;
 
   } catch (e) {
-    return 'Error';
+    rethrow;
   }
 
 }
 
-tinturasGetAll(List<Marcas> marcas) async {
+Future tinturasGetAll() async {
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
   String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
   var bodyRequest = '''<?xml version="1.0" encoding="utf-8"?>
@@ -77,12 +75,41 @@ tinturasGetAll(List<Marcas> marcas) async {
 
   for (var element in jsonDataTinturas) {
     var json = jsonDecode(element);
-    final Tinturas tintura = Tinturas(json['Id'], json['Nombre']); 
+    final Tinturas tintura = Tinturas(json['Id'], json['Nombre'] , json['MarcaNombre'],json['MarcaId']); 
     tinturas.add(tintura);
   }
-  return [marcas,tinturas];
-}
+  return tinturas;
+  }
+  
+Future marcasGet() async {
+  var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
+  String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
+  var bodyRequest = '''<?xml version="1.0" encoding="utf-8"?>
+    <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="https://salonalice.com.ar/webservices/wsStock.php">
+        <soapenv:Header/>
+        <soapenv:Body>
+            <ser:MarcasGet xmlns="https://salonalice.com.ar/webservices/wsStock.php">
+              <marcaId>1</marcaId>
+            </ser:MarcasGet>
+        </soapenv:Body>
+    </soapenv:Envelope>
+    ''';
+    var rsp = await http.post(
+    url,
+    headers: {
+      'Host':'salonalice.com.ar',
+      'Content-Type' : 'text/xml; charset=utf-8',
+      'SOAPAction'  : 'https://salonalice.com.ar/webservices/wsStock.php/MarcasGet',
+      'Authorization': basicAuth
+    },
+    body: bodyRequest
+  );
 
+  var response = rsp.body.replaceAll('&quot', '').replaceAll(';', '');
+  final res = XmlDocument.parse(response).findAllElements('return').first.innerText;
+  final jsonMarcasGet = parseRsp(res);
+  return jsonMarcasGet;
+}
 insumosSave(barra , marcaId , esTintura , lineaId , tono , nombre , id) async {
   var url = Uri.parse('https://salonalice.com.ar/webservices/wsStock.php');
   String basicAuth ='Basic ' + base64Encode(utf8.encode('pepe:123456'));
@@ -98,7 +125,7 @@ insumosSave(barra , marcaId , esTintura , lineaId , tono , nombre , id) async {
                 <lineaId>$lineaId</lineaId>
                 <tono>$tono</tono>
                 <nombre>$nombre</nombre>
-                <id></id>
+                <id>0</id>
             </ser:InsumosSave>
         </soapenv:Body>
     </soapenv:Envelope>
@@ -247,6 +274,14 @@ Future consumosDiariosCreate(List<ItemProduct> productos , String fecha) async {
   } catch (e) {
    rethrow;
   }
+}
+
+getMarcasTinturas() async {
+  var responses = await Future.wait([
+    marcasGetAll(),
+    tinturasGetAll(),
+  ]);
+return responses;
 }
 
 parseRsp(raw){
